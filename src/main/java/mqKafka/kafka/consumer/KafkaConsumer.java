@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MDMConsumer {
+public class KafkaConsumer {
 
     @KafkaListener(topics = "mdmTopicName")
     public void consumeMessage(MessageDataModel message) {
