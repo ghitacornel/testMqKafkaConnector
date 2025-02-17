@@ -1,4 +1,4 @@
-package mqKafka.config;
+package mqKafka.jms.config;
 
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Queue;

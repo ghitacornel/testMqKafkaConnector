@@ -1,14 +1,14 @@
-package mqKafka.consumer;
+package mqKafka.translator;
 
 import lombok.extern.slf4j.Slf4j;
-import mqKafka.config.JMSQueueConfig;
+import mqKafka.jms.config.JMSQueueConfig;
 import mqKafka.model.MessageForQueue;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class JMSConsumerConfig {
+public class TranslatorConfig {
 
     @JmsListener(destination = JMSQueueConfig.QUEUE_1)
     public void listenerForQueue1(MessageForQueue message) {

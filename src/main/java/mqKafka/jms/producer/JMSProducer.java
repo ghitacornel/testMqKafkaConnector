@@ -1,4 +1,4 @@
-package mqKafka.producer;
+package mqKafka.jms.producer;
 
 import jakarta.jms.Queue;
 import lombok.RequiredArgsConstructor;
