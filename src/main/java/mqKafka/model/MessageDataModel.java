@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageForQueue implements Serializable {
+public class MessageDataModel implements Serializable {
 
     private int id;
     private String payload;

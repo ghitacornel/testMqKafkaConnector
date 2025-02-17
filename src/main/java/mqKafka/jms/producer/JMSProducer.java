@@ -3,7 +3,7 @@ package mqKafka.jms.producer;
 import jakarta.jms.Queue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mqKafka.model.MessageForQueue;
+import mqKafka.model.MessageDataModel;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -26,13 +26,13 @@ public class JMSProducer {
     private final JmsTemplate jmsTemplate;
 
     public void createMessageAndSendItToTheQueue1() {
-        MessageForQueue message = new MessageForQueue(counter1.getAndIncrement(), "payload for queue 1");
+        MessageDataModel message = new MessageDataModel(counter1.getAndIncrement(), "payload for queue 1");
         log.info("Sending to queue 1: {} , thread {}", message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue1, message);
     }
 
     public void createMessageAndSendItToTheQueue2() {
-        MessageForQueue message = new MessageForQueue(counter2.getAndIncrement(), "payload for queue 2");
+        MessageDataModel message = new MessageDataModel(counter2.getAndIncrement(), "payload for queue 2");
         log.info("Sending to queue 2: {} , thread {}", message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue2, message);
     }
