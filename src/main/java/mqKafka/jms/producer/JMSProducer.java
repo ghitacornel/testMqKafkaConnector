@@ -27,13 +27,13 @@ public class JMSProducer {
 
     public void createMessageAndSendItToTheQueue1() {
         MessageDataModel message = new MessageDataModel(counter1.getAndIncrement(), "payload for queue 1");
-        log.info("Sending to queue 1: {} , thread {}", message, Thread.currentThread().getName());
+        log.info("JMS to queue 1: {} , thread {}", message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue1, message);
     }
 
     public void createMessageAndSendItToTheQueue2() {
         MessageDataModel message = new MessageDataModel(counter2.getAndIncrement(), "payload for queue 2");
-        log.info("Sending to queue 2: {} , thread {}", message, Thread.currentThread().getName());
+        log.info("JMS to queue 2: {} , thread {}", message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue2, message);
     }
 
