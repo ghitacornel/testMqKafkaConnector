@@ -1,16 +1,5 @@
 services:
 
-  #http://localhost:8161/admin/
-  #user=admin
-  #pass=admin
-
-  jms:
-    image: webcenter/activemq
-    container_name: activeMQ
-    ports:
-      - "61616:61616"
-      - "8161:8161"
-
   #http://localhost:8081/ui/clusters/local/topics
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -78,3 +67,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  #http://localhost:8161/admin/
+  #user=admin
+  #pass=admin
+
+  jms:
+    image: webcenter/activemq
+    container_name: activeMQ
+    ports:
+      - "61616:61616"
+      - "8161:8161"
