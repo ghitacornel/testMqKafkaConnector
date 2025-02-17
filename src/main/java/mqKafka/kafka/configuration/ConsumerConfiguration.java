@@ -31,10 +31,4 @@ class ConsumerConfiguration {
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
-    @Bean
-    ConcurrentKafkaListenerContainerFactory<String, MessageDataModel> kafkaListenerDataModelContainerFactory(ConsumerFactory<String, MessageDataModel> consumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, MessageDataModel> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory);
-        return factory;
-    }
 }
