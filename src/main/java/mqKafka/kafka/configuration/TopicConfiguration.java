@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class TopicConfiguration {
 
-    @Value(value = "${kafka.stringTopicName}")
-    private String stringTopicName;
+    @Value(value = "${kafka.mdmTopicName}")
+    private String mdmTopicName;
 
     @Bean
-    NewTopic stringTopic() {
-        return new NewTopic(stringTopicName, 1, (short) 1);
+    NewTopic mdmTopic() {
+        return new NewTopic(mdmTopicName, 1, (short) 1);
     }
 
 }
