@@ -17,13 +17,11 @@ public class TranslatorConfig {
 
     @JmsListener(destination = JMSQueueConfig.QUEUE_1)
     public void listenerForQueue1(MessageDataModel message) {
-        log.info("JMS received on queue 1 {} thread {}", message, Thread.currentThread().getName());
         kafkaProducer.sendMessage(message);
     }
 
     @JmsListener(destination = JMSQueueConfig.QUEUE_2)
     public void listenerForQueue2(MessageDataModel message) {
-        log.info("JMS received on queue 2 {} thread {}", message, Thread.currentThread().getName());
         kafkaProducer.sendMessage(message);
     }
 

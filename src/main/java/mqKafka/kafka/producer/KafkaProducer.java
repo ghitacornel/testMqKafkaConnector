@@ -18,7 +18,6 @@ public class KafkaProducer {
     private final KafkaTemplate<String, MessageDataModel> kafkaTemplate;
 
     public void sendMessage(MessageDataModel message) {
-        log.info("Kafka produced message : {}", message);
         kafkaTemplate.send(topicName, message);
     }
 
