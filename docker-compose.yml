@@ -1,18 +1,20 @@
 services:
 
+  #http://localhost:8161/admin/
+  #user=admin
+  #pass=admin
+
   jms:
     image: webcenter/activemq
     container_name: activeMQ
     ports:
       - "61616:61616"
       - "8161:8161"
-#http://localhost:8161/admin/
-#user=admin
-#pass=admin
 
   #http://localhost:8081/ui/clusters/local/topics
   kafka-ui:
     image: provectuslabs/kafka-ui
+    container_name: kafka-ui
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka-1:29092,kafka-2:39092,localhost:29092,localhost:39092,localhost:9092,kafka-1:9092,kafka-2:9092"
@@ -28,6 +30,7 @@ services:
 
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -36,6 +39,7 @@ services:
 
   zookeeper-2:
     image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-2
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -44,6 +48,7 @@ services:
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka-1
     depends_on:
       - zookeeper-1
       - zookeeper-2
@@ -59,6 +64,7 @@ services:
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka-2
     depends_on:
       - zookeeper-1
       - zookeeper-2
