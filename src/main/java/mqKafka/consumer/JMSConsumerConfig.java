@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ConsumerConfig {
+public class JMSConsumerConfig {
 
     @JmsListener(destination = JMSQueueConfig.QUEUE_1)
     public void listenerForQueue1(MessageForQueue message) {

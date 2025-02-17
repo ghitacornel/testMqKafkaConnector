@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class Producer {
+public class JMSProducer {
 
     @Qualifier("queue1")
     private final Queue queue1;

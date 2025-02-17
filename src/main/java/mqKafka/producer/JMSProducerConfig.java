@@ -8,15 +8,15 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-class ProducerConfig {
+class JMSProducerConfig {
 
-    private final Producer producer;
+    private final JMSProducer JMSProducer;
 
     @Bean
     Thread producerThread1() {
         Thread thread = new Thread(() -> {
             while (true) {
-                producer.createMessageAndSendItToTheQueue1();
+                JMSProducer.createMessageAndSendItToTheQueue1();
 //                try {
 //                    Thread.sleep(10);
 //                } catch (InterruptedException e) {
@@ -33,7 +33,7 @@ class ProducerConfig {
     Thread producerThread2() {
         Thread thread = new Thread(() -> {
             while (true) {
-                producer.createMessageAndSendItToTheQueue2();
+                JMSProducer.createMessageAndSendItToTheQueue2();
 //                try {
 //                    Thread.sleep(10);
 //                } catch (InterruptedException e) {
