@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaConsumer {
 
-    @KafkaListener(topics = "mdmTopicName")
+    @KafkaListener(topics = "mdmTopicName", groupId = "groupId")
     public void consumeMessage(MessageDataModel message) {
         log.info("Kafka consumed message : {}", message);
     }
