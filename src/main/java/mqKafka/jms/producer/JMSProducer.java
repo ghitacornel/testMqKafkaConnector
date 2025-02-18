@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -26,13 +27,13 @@ public class JMSProducer {
     private final JmsTemplate jmsTemplate;
 
     public void createMessageAndSendItToTheQueue1() {
-        MessageDataModel message = new MessageDataModel(counter1.getAndIncrement(), "payload for queue 1");
+        MessageDataModel message = new MessageDataModel(counter1.getAndIncrement(), "payload for queue 1 " + new Date().getTime());
         log.info("JMS to queue 1: {} , thread {}", message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue1, message);
     }
 
     public void createMessageAndSendItToTheQueue2() {
-        MessageDataModel message = new MessageDataModel(counter2.getAndIncrement(), "payload for queue 2");
+        MessageDataModel message = new MessageDataModel(counter2.getAndIncrement(), "payload for queue 2" + new Date().getTime());
         log.info("JMS to queue 2: {} , thread {}", message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue2, message);
     }
