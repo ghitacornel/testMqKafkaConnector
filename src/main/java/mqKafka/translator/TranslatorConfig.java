@@ -15,7 +15,6 @@ public class TranslatorConfig {
 
     private final KafkaProducer kafkaProducer;
 
-    // TODO
     // TODO exactly 1 delivery
     // need to check JMS transactions
     // need to check KAFKA message acknowledgement
