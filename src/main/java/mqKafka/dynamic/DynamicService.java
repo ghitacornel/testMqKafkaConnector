@@ -8,13 +8,17 @@ import mqKafka.jms.producer.JMSProducerThread;
 import mqKafka.kafka.producer.KafkaProducer;
 import mqKafka.translator.Translator;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.config.SimpleJmsListenerEndpoint;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import java.util.Objects;
 
@@ -26,6 +30,9 @@ public class DynamicService {
     private final ApplicationContext applicationContext;
     private final JmsTemplate jmsTemplate;
     private final KafkaProducer kafkaProducer;
+
+    @Qualifier("defaultJmsListenerContainerFactory")
+    private final DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory;
 
     public void register(String queueName, String topic) {
         BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
@@ -69,6 +76,29 @@ public class DynamicService {
                     .getBeanDefinition();
             factory.registerBeanDefinition("translatorForQueue_" + queueName, beanDefinition);
             log.info("queue translator {} registered", queueName);
+        }
+
+        // create listener container
+        {
+
+            // get previously build translator
+            Translator createdTranslator = applicationContext.getBeansOfType(Translator.class).values().stream()
+                    .filter(translator -> translator.isForQueue(queueName))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("no producer found for " + queueName));
+
+            // build listener container
+            DefaultMessageListenerContainer defaultMessageListenerContainer = buildListenerContainer(defaultJmsListenerContainerFactory, createdTranslator);
+
+//            AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(DefaultMessageListenerContainer.class)
+//                    .addConstructorArgValue(queueName)
+//                    .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
+//                    .getBeanDefinition();
+//            factory.registerBeanDefinition("listenerContainerForQueue_" + queueName, beanDefinition);
+
+            GenericWebApplicationContext genericWebApplicationContext = (GenericWebApplicationContext) applicationContext;
+            genericWebApplicationContext.registerBean("listenerContainerForQueue_" + queueName, DefaultMessageListenerContainer.class, () -> defaultMessageListenerContainer);
+            log.info("queue listener container {} registered", queueName);
         }
 
         // start queue producer
@@ -137,6 +167,18 @@ public class DynamicService {
                     log.info("unregister Queue for queue name: {}", queueName);
                 });
 
+    }
+
+    private static DefaultMessageListenerContainer buildListenerContainer(
+            DefaultJmsListenerContainerFactory factory,
+            Translator translator
+    ) {
+        SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+        endpoint.setMessageListener(translator);
+        endpoint.setDestination(translator.getQueueName());
+        DefaultMessageListenerContainer listenerContainer = factory.createListenerContainer(endpoint);
+        listenerContainer.setBeanName(translator.getQueueName());
+        return listenerContainer;
     }
 
 }

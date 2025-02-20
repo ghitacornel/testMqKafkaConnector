@@ -31,7 +31,7 @@ class TranslatorConfig {
     }
 
     @Bean
-    public DefaultMessageListenerContainer defaultMessageListenerContainer1(
+    DefaultMessageListenerContainer listenerContainerForQueue_queue1(
             @Qualifier("defaultJmsListenerContainerFactory") DefaultJmsListenerContainerFactory factory,
             @Qualifier("translatorForQueue_queue1") Translator translator
     ) {
@@ -44,7 +44,7 @@ class TranslatorConfig {
     }
 
     @Bean
-    public DefaultMessageListenerContainer defaultMessageListenerContainer2(
+    DefaultMessageListenerContainer listenerContainerForQueue_queue2(
             @Qualifier("defaultJmsListenerContainerFactory") DefaultJmsListenerContainerFactory factory,
             @Qualifier("translatorForQueue_queue2") Translator translator
     ) {
@@ -58,14 +58,12 @@ class TranslatorConfig {
 
     @Bean
     Translator translatorForQueue_queue1(KafkaProducer kafkaProducer) {
-        Translator translator = new Translator("queue1", kafkaProducer);
-        return translator;
+        return new Translator("queue1", kafkaProducer);
     }
 
     @Bean
     Translator translatorForQueue_queue2(KafkaProducer kafkaProducer) {
-        Translator translator = new Translator("queue2", kafkaProducer);
-        return translator;
+        return new Translator("queue2", kafkaProducer);
     }
 
 }

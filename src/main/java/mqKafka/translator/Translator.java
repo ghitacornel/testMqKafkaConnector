@@ -36,4 +36,9 @@ public class Translator implements MessageListener {
             throw new RuntimeException(e);
         }
     }
+
+    public boolean isForQueue(String queueName) {
+        return this.queueName.equals(queueName);
+    }
+
 }
