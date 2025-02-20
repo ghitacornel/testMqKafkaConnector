@@ -37,8 +37,10 @@ class TranslatorConfig {
     ) {
         SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
         endpoint.setMessageListener(translator);
-        endpoint.setDestination("queue1");
-        return factory.createListenerContainer(endpoint);
+        endpoint.setDestination(translator.getQueueName());
+        DefaultMessageListenerContainer listenerContainer = factory.createListenerContainer(endpoint);
+        listenerContainer.setBeanName(translator.getQueueName());
+        return listenerContainer;
     }
 
     @Bean
@@ -48,19 +50,21 @@ class TranslatorConfig {
     ) {
         SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
         endpoint.setMessageListener(translator);
-        endpoint.setDestination("queue2");
-        return factory.createListenerContainer(endpoint);
+        endpoint.setDestination(translator.getQueueName());
+        DefaultMessageListenerContainer listenerContainer = factory.createListenerContainer(endpoint);
+        listenerContainer.setBeanName(translator.getQueueName());
+        return listenerContainer;
     }
 
     @Bean
     Translator translator1(KafkaProducer kafkaProducer) {
-        Translator translator = new Translator(kafkaProducer);
+        Translator translator = new Translator("queue1", kafkaProducer);
         return translator;
     }
 
     @Bean
     Translator translator2(KafkaProducer kafkaProducer) {
-        Translator translator = new Translator(kafkaProducer);
+        Translator translator = new Translator("queue2", kafkaProducer);
         return translator;
     }
 

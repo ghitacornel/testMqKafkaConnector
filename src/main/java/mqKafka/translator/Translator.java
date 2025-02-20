@@ -3,6 +3,7 @@ package mqKafka.translator;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mqKafka.kafka.producer.KafkaProducer;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 public class Translator implements MessageListener {
+
+    @Getter
+    private final String queueName;
 
     private final KafkaProducer kafkaProducer;
 

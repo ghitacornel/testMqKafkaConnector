@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JMSProducerThread extends Thread {
 
     private final Queue queue;
+    private final String queueName;
     private final JmsTemplate jmsTemplate;
 
     private final AtomicInteger counter = new AtomicInteger(0);
@@ -22,7 +23,7 @@ public class JMSProducerThread extends Thread {
     public JMSProducerThread(Queue queue, JmsTemplate jmsTemplate) {
         this.queue = queue;
         this.jmsTemplate = jmsTemplate;
-        setName("producer" + queue.getQueueName());
+        this.queueName = queue.getQueueName();
     }
 
     @Override
@@ -34,8 +35,8 @@ public class JMSProducerThread extends Thread {
 
     @SneakyThrows
     private void createMessageAndSendItToTheQueue() {
-        MessageDataModel message = new MessageDataModel(counter.getAndIncrement(), "payload for queue " + queue.getQueueName() + " " + new Date().getTime());
-        log.info("JMS to {} : {} , thread {}", queue.getQueueName(), message, Thread.currentThread().getName());
+        MessageDataModel message = new MessageDataModel(counter.getAndIncrement(), "payload for " + queue.getQueueName() + " " + new Date().getTime());
+        log.info("JMS to {} : {} , thread {}", queueName, message, Thread.currentThread().getName());
         jmsTemplate.convertAndSend(queue, message);
     }
 
@@ -44,7 +45,7 @@ public class JMSProducerThread extends Thread {
     }
 
     public boolean isForQueue(String queueName) {
-        return getName().endsWith(queueName);
+        return this.queueName.equals(queueName);
     }
 
 }
