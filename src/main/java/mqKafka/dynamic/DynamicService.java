@@ -70,8 +70,10 @@ public class DynamicService {
 
     }
 
-    public void unregister(String queueName, String topic) {
+    public void unregister(String queueName) {
         BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
+
+        // remove producer
         applicationContext.getBeansOfType(JMSProducerThread.class)
                 .entrySet()
                 .stream()
@@ -82,6 +84,30 @@ public class DynamicService {
                     entry.getValue().cancel();
                     log.info("unregister Producer for queue name: {}", queueName);
                 });
+
+        // remove listener container
+        applicationContext.getBeansOfType(DefaultMessageListenerContainer.class)
+                .entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(entry.getValue().getDestinationName(), queueName))
+                .findFirst()
+                .ifPresent(entry -> {
+                    factory.removeBeanDefinition(entry.getKey());
+                    log.info("unregister DefaultMessageListenerContainer for queue name: {}", queueName);
+                });
+
+        // remove translator
+        applicationContext.getBeansOfType(Translator.class)
+                .entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(entry.getValue().getQueueName(), queueName))
+                .findFirst()
+                .ifPresent(entry -> {
+                    factory.removeBeanDefinition(entry.getKey());
+                    log.info("unregister Translator for queue name: {}", queueName);
+                });
+
+        // remove queue
         applicationContext.getBeansOfType(Queue.class)
                 .entrySet()
                 .stream()
@@ -97,24 +123,7 @@ public class DynamicService {
                     factory.removeBeanDefinition(entry.getKey());
                     log.info("unregister Queue for queue name: {}", queueName);
                 });
-        applicationContext.getBeansOfType(DefaultMessageListenerContainer.class)
-                .entrySet()
-                .stream()
-                .filter(entry -> Objects.equals(entry.getValue().getDestinationName(), queueName))
-                .findFirst()
-                .ifPresent(entry -> {
-                    factory.removeBeanDefinition(entry.getKey());
-                    log.info("unregister DefaultMessageListenerContainer for queue name: {}", queueName);
-                });
-        applicationContext.getBeansOfType(Translator.class)
-                .entrySet()
-                .stream()
-                .filter(entry -> Objects.equals(entry.getValue().getQueueName(), queueName))
-                .findFirst()
-                .ifPresent(entry -> {
-                    factory.removeBeanDefinition(entry.getKey());
-                    log.info("unregister Translator for queue name: {}", queueName);
-                });
+
     }
 
 }

@@ -22,10 +22,7 @@ public class DynamicController {
     }
 
     @GetMapping("unregister/{queue}/{topic}")
-    public void unregister(
-            @PathVariable("queue") String queue,
-            @PathVariable("topic") String topic
-    ) {
-        service.unregister(queue, topic);
+    public void unregister(@PathVariable("queue") String queue) {
+        service.unregister(queue);
     }
 }
