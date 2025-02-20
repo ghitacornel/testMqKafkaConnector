@@ -15,17 +15,14 @@ import org.springframework.jms.core.JmsTemplate;
 @Configuration
 public class JMSQueueConfig {
 
-    public static final String QUEUE_1 = "Queue1";
-    public static final String QUEUE_2 = "Queue2";
-
     @Bean
     Queue queue1() {
-        return new ActiveMQQueue(QUEUE_1);
+        return new ActiveMQQueue("queue1");
     }
 
     @Bean
     Queue queue2() {
-        return new ActiveMQQueue(QUEUE_2);
+        return new ActiveMQQueue("queue2");
     }
 
     @Bean

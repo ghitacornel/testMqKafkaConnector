@@ -2,7 +2,6 @@ package mqKafka.translator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mqKafka.jms.config.JMSQueueConfig;
 import mqKafka.kafka.producer.KafkaProducer;
 import mqKafka.model.MessageDataModel;
 import org.springframework.jms.annotation.JmsListener;
@@ -23,13 +22,13 @@ public class TranslatorConfig {
     // IBM MQ guarantees message ordering
     // KAFKA guarantees message ordering per partition, currently we write in a single partition
 
-    @JmsListener(destination = JMSQueueConfig.QUEUE_1)
-    public void listenerForQueue1(MessageDataModel message) {
+    @JmsListener(destination = "queue1")
+    public void listener1(MessageDataModel message) {
         kafkaProducer.sendMessage(message);
     }
 
-    @JmsListener(destination = JMSQueueConfig.QUEUE_2)
-    public void listenerForQueue2(MessageDataModel message) {
+    @JmsListener(destination = "queue2")
+    public void listener2(MessageDataModel message) {
         kafkaProducer.sendMessage(message);
     }
 
