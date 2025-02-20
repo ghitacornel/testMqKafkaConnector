@@ -5,6 +5,7 @@ import jakarta.jms.Queue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mqKafka.jms.producer.JMSProducerThread;
+import mqKafka.kafka.producer.KafkaProducer;
 import mqKafka.translator.Translator;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -24,6 +25,7 @@ public class DynamicService {
 
     private final ApplicationContext applicationContext;
     private final JmsTemplate jmsTemplate;
+    private final KafkaProducer kafkaProducer;
 
     public void register(String queueName, String topic) {
         BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
@@ -56,6 +58,17 @@ public class DynamicService {
                     .getBeanDefinition();
             factory.registerBeanDefinition("producerForQueue_" + queueName, beanDefinition);
             log.info("queue producer {} registered", queueName);
+        }
+
+        // create translator
+        {
+            AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(Translator.class)
+                    .addConstructorArgValue(queueName)
+                    .addConstructorArgValue(kafkaProducer)
+                    .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
+                    .getBeanDefinition();
+            factory.registerBeanDefinition("translatorForQueue_" + queueName, beanDefinition);
+            log.info("queue translator {} registered", queueName);
         }
 
         // start queue producer

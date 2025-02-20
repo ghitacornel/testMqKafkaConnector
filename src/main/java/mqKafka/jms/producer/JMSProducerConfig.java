@@ -14,14 +14,14 @@ import org.springframework.jms.core.JmsTemplate;
 class JMSProducerConfig {
 
     @Bean
-    JMSProducerThread producerThread1(@Qualifier("queue1") Queue queue, JmsTemplate jmsTemplate) {
+    JMSProducerThread producerForQueue_queue1(@Qualifier("queue1") Queue queue, JmsTemplate jmsTemplate) {
         JMSProducerThread thread = new JMSProducerThread(queue, jmsTemplate);
         thread.start();
         return thread;
     }
 
     @Bean
-    JMSProducerThread producerThread2(@Qualifier("queue2") Queue queue, JmsTemplate jmsTemplate) {
+    JMSProducerThread producerForQueue_queue2(@Qualifier("queue2") Queue queue, JmsTemplate jmsTemplate) {
         JMSProducerThread thread = new JMSProducerThread(queue, jmsTemplate);
         thread.start();
         return thread;
