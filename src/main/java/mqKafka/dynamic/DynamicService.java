@@ -180,6 +180,8 @@ public class DynamicService {
         endpoint.setDestination(translator.getQueueName());
         DefaultMessageListenerContainer listenerContainer = factory.createListenerContainer(endpoint);
         listenerContainer.setBeanName(translator.getQueueName());
+        listenerContainer.setMessageListener(translator);
+        listenerContainer.afterPropertiesSet();
         listenerContainer.start();
         return listenerContainer;
     }
