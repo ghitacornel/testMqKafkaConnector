@@ -1,35 +1,67 @@
 package mqKafka.translator;
 
+import jakarta.jms.ConnectionFactory;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import mqKafka.kafka.producer.KafkaProducer;
-import mqKafka.model.MessageDataModel;
-import org.springframework.jms.annotation.JmsListener;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.config.SimpleJmsListenerContainerFactory;
+import org.springframework.jms.config.SimpleJmsListenerEndpoint;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-@Slf4j
-@Component
+@Configuration
 @RequiredArgsConstructor
-public class TranslatorConfig {
+class TranslatorConfig {
 
-    private final KafkaProducer kafkaProducer;
-
-    // TODO exactly 1 delivery
-    // need to check JMS transactions
-    // need to check KAFKA message acknowledgement
-
-    // TODO message ordering
-    // IBM MQ guarantees message ordering
-    // KAFKA guarantees message ordering per partition, currently we write in a single partition
-
-    @JmsListener(destination = "queue1")
-    public void listener1(MessageDataModel message) {
-        kafkaProducer.sendMessage(message);
+    @Bean
+    DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(ConnectionFactory connectionFactory) {
+        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setConcurrency("1");
+        return factory;
     }
 
-    @JmsListener(destination = "queue2")
-    public void listener2(MessageDataModel message) {
-        kafkaProducer.sendMessage(message);
+    @Bean
+    SimpleJmsListenerContainerFactory simpleJmsListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleJmsListenerContainerFactory factory = new SimpleJmsListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        return factory;
+    }
+
+    @Bean
+    public DefaultMessageListenerContainer defaultMessageListenerContainer1(
+            @Qualifier("defaultJmsListenerContainerFactory") DefaultJmsListenerContainerFactory factory,
+            @Qualifier("translator1") Translator translator
+    ) {
+        SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+        endpoint.setMessageListener(translator);
+        endpoint.setDestination("queue1");
+        return factory.createListenerContainer(endpoint);
+    }
+
+    @Bean
+    public DefaultMessageListenerContainer defaultMessageListenerContainer2(
+            @Qualifier("defaultJmsListenerContainerFactory") DefaultJmsListenerContainerFactory factory,
+            @Qualifier("translator2") Translator translator
+    ) {
+        SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+        endpoint.setMessageListener(translator);
+        endpoint.setDestination("queue2");
+        return factory.createListenerContainer(endpoint);
+    }
+
+    @Bean
+    Translator translator1(KafkaProducer kafkaProducer) {
+        Translator translator = new Translator(kafkaProducer);
+        return translator;
+    }
+
+    @Bean
+    Translator translator2(KafkaProducer kafkaProducer) {
+        Translator translator = new Translator(kafkaProducer);
+        return translator;
     }
 
 }

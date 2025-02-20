@@ -13,7 +13,7 @@ import org.springframework.jms.core.JmsTemplate;
 
 @EnableJms
 @Configuration
-public class JMSQueueConfig {
+class JMSQueueConfig {
 
     @Bean
     Queue queue1() {
