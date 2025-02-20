@@ -6,8 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mqKafka.jms.producer.JMSProducerThread;
 import mqKafka.translator.Translator;
+import org.apache.activemq.command.ActiveMQQueue;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +23,61 @@ import java.util.Objects;
 public class DynamicService {
 
     private final ApplicationContext applicationContext;
+    private final JmsTemplate jmsTemplate;
 
-    public void register(String queue, String topic) {
-        System.out.println("register income " + queue + " to topic " + topic);
+    public void register(String queueName, String topic) {
+        BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
+
+        // create queue
+        {
+            AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(ActiveMQQueue.class)
+                    .addConstructorArgValue(queueName)
+                    .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
+                    .getBeanDefinition();
+            factory.registerBeanDefinition(queueName, beanDefinition);
+            log.info("queue {} registered", queueName);
+        }
+
+        // create queue producer
+        {
+            AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(JMSProducerThread.class)
+                    .addConstructorArgValue(applicationContext.getBeansOfType(Queue.class).values().stream()
+                            .filter(queue -> {
+                                try {
+                                    return queue.getQueueName().equals(queueName);
+                                } catch (JMSException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("queue with name " + queueName + " not found")))
+                    .addConstructorArgValue(jmsTemplate)
+                    .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
+                    .getBeanDefinition();
+            factory.registerBeanDefinition("producerForQueue_" + queueName, beanDefinition);
+            log.info("queue producer {} registered", queueName);
+        }
+
+        // start queue producer
+        {
+            applicationContext.getBeansOfType(JMSProducerThread.class).values().stream()
+                    .filter(producerThread -> producerThread.isForQueue(queueName))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("no producer found for " + queueName))
+                    .start();
+            log.info("queue producer {} started", queueName);
+        }
+
     }
 
     public void unregister(String queueName, String topic) {
+        BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
         applicationContext.getBeansOfType(JMSProducerThread.class)
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isForQueue(queueName))
                 .findFirst()
                 .ifPresent(entry -> {
-                    BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
                     factory.removeBeanDefinition(entry.getKey());
                     entry.getValue().cancel();
                     log.info("unregister Producer for queue name: {}", queueName);
@@ -48,7 +94,6 @@ public class DynamicService {
                 })
                 .findFirst()
                 .ifPresent(entry -> {
-                    BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
                     factory.removeBeanDefinition(entry.getKey());
                     log.info("unregister Queue for queue name: {}", queueName);
                 });
@@ -58,7 +103,6 @@ public class DynamicService {
                 .filter(entry -> Objects.equals(entry.getValue().getDestinationName(), queueName))
                 .findFirst()
                 .ifPresent(entry -> {
-                    BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
                     factory.removeBeanDefinition(entry.getKey());
                     log.info("unregister DefaultMessageListenerContainer for queue name: {}", queueName);
                 });
@@ -68,7 +112,6 @@ public class DynamicService {
                 .filter(entry -> Objects.equals(entry.getValue().getQueueName(), queueName))
                 .findFirst()
                 .ifPresent(entry -> {
-                    BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
                     factory.removeBeanDefinition(entry.getKey());
                     log.info("unregister Translator for queue name: {}", queueName);
                 });
