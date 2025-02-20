@@ -89,7 +89,7 @@ public class DynamicService {
 
             // build listener container
             DefaultMessageListenerContainer defaultMessageListenerContainer = buildListenerContainer(defaultJmsListenerContainerFactory, createdTranslator);
-
+            defaultMessageListenerContainer.start();
 //            AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(DefaultMessageListenerContainer.class)
 //                    .addConstructorArgValue(queueName)
 //                    .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
@@ -136,6 +136,8 @@ public class DynamicService {
                 .findFirst()
                 .ifPresent(entry -> {
                     factory.removeBeanDefinition(entry.getKey());
+                    entry.getValue().stop();
+                    entry.getValue().shutdown();
                     log.info("unregister DefaultMessageListenerContainer for queue name: {}", queueName);
                 });
 
@@ -178,6 +180,7 @@ public class DynamicService {
         endpoint.setDestination(translator.getQueueName());
         DefaultMessageListenerContainer listenerContainer = factory.createListenerContainer(endpoint);
         listenerContainer.setBeanName(translator.getQueueName());
+        listenerContainer.start();
         return listenerContainer;
     }
 
