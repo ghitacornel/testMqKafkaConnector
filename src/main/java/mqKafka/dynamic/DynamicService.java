@@ -90,11 +90,6 @@ public class DynamicService {
             // build listener container
             DefaultMessageListenerContainer defaultMessageListenerContainer = buildListenerContainer(defaultJmsListenerContainerFactory, createdTranslator);
             defaultMessageListenerContainer.start();
-//            AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(DefaultMessageListenerContainer.class)
-//                    .addConstructorArgValue(queueName)
-//                    .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
-//                    .getBeanDefinition();
-//            factory.registerBeanDefinition("listenerContainerForQueue_" + queueName, beanDefinition);
 
             GenericWebApplicationContext genericWebApplicationContext = (GenericWebApplicationContext) applicationContext;
             genericWebApplicationContext.registerBean("listenerContainerForQueue_" + queueName, DefaultMessageListenerContainer.class, () -> defaultMessageListenerContainer);

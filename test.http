@@ -1,0 +1,17 @@
+### GET register queue 1 topic 1
+GET http://localhost:8080/dynamic/register/queue1/topic1
+
+### GET register queue 2 topic 1
+GET http://localhost:8080/dynamic/register/queue2/topic1
+
+### GET register queue 3 topic 2
+GET http://localhost:8080/dynamic/register/queue3/topic3
+
+### GET unregister queue 1
+DELETE http://localhost:8080/dynamic/unregister/queue1
+
+### GET unregister queue 2
+DELETE http://localhost:8080/dynamic/unregister/queue2
+
+### GET unregister queue 3
+DELETE http://localhost:8080/dynamic/unregister/queue3

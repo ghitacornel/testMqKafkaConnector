@@ -1,8 +1,6 @@
 package mqKafka.jms.config;
 
 import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Queue;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,16 +12,6 @@ import org.springframework.jms.core.JmsTemplate;
 @EnableJms
 @Configuration
 class JMSQueueConfig {
-
-    @Bean
-    Queue queue1() {
-        return new ActiveMQQueue("queue1");
-    }
-
-    @Bean
-    Queue queue2() {
-        return new ActiveMQQueue("queue2");
-    }
 
     @Bean
     JmsListenerContainerFactory<?> queueConnectionFactory(
