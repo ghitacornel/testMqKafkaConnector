@@ -12,14 +12,14 @@ public class DynamicController {
 
     @GetMapping("register/{queue}/{topic}")
     public void register(
-            @PathVariable("queue") String queue,
-            @PathVariable("topic") String topic
+            @PathVariable("queue") String queueName,
+            @PathVariable("topic") String topicName
     ) {
-        service.register(queue, topic);
+        service.register(queueName, topicName);
     }
 
     @DeleteMapping("unregister/{queue}")
-    public void unregister(@PathVariable("queue") String queue) {
-        service.unregister(queue);
+    public void unregister(@PathVariable("queue") String queueName) {
+        service.unregister(queueName);
     }
 }

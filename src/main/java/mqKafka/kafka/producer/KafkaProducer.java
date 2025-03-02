@@ -1,19 +1,17 @@
 package mqKafka.kafka.producer;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mqKafka.model.MessageDataModel;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class KafkaProducer {
 
-    @Value(value = "${kafka.mdmTopicName}")
-    private String topicName;
+    @Getter
+    private final String topicName;
 
     private final KafkaTemplate<String, MessageDataModel> kafkaTemplate;
 

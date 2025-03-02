@@ -23,7 +23,11 @@ public class KafkaDynamicTest {
 
     @Test
     public void testKafkaDynamic() {
+        dynamicService.register("queue1","topic1");
+        dynamicService.register("queue2","topic1");
+        dynamicService.register("queue3","topic2");
         dynamicService.unregister("queue1");
         dynamicService.unregister("queue2");
+        dynamicService.unregister("queue3");
     }
 }

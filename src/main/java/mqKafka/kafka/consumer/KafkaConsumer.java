@@ -10,12 +10,30 @@ import org.springframework.stereotype.Component;
 class KafkaConsumer {
 
     @KafkaListener(
-            topics = "mdmTopicName",
+            topics = "topic1",
             groupId = "groupId",
             containerFactory = "kafkaListenerDataModelContainerFactory"
     )
-    void consumeMessage(MessageDataModel message) {
-        log.info("Kafka consumed message : {}", message);
+    void consumeMessage1(MessageDataModel message) {
+        log.info("Kafka 1 consumed message : {}", message);
+    }
+
+    @KafkaListener(
+            topics = "topic2",
+            groupId = "groupId",
+            containerFactory = "kafkaListenerDataModelContainerFactory"
+    )
+    void consumeMessage2(MessageDataModel message) {
+        log.info("Kafka 2 consumed message : {}", message);
+    }
+
+    @KafkaListener(
+            topics = "topic3",
+            groupId = "groupId",
+            containerFactory = "kafkaListenerDataModelContainerFactory"
+    )
+    void consumeMessage3(MessageDataModel message) {
+        log.info("Kafka 3 consumed message : {}", message);
     }
 
 }

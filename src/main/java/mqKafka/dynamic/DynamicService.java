@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mqKafka.jms.producer.JMSProducerThread;
 import mqKafka.kafka.producer.KafkaProducer;
+import mqKafka.model.MessageDataModel;
 import mqKafka.translator.Translator;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -17,6 +19,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.SimpleJmsListenerEndpoint;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
@@ -29,12 +32,12 @@ public class DynamicService {
 
     private final ApplicationContext applicationContext;
     private final JmsTemplate jmsTemplate;
-    private final KafkaProducer kafkaProducer;
+    private final KafkaTemplate<String, MessageDataModel> kafkaTemplate;
 
     @Qualifier("defaultJmsListenerContainerFactory")
     private final DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory;
 
-    public void register(String queueName, String topic) {
+    public void register(String queueName, String topicName) {
         BeanDefinitionRegistry factory = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
 
         // create queue
@@ -67,11 +70,51 @@ public class DynamicService {
             log.info("queue producer {} registered", queueName);
         }
 
+        // create Kafka topic
+        {
+            NewTopic existingTopic = applicationContext.getBeansOfType(NewTopic.class).values().stream()
+                    .filter(newTopic -> newTopic.name().equals(topicName))
+                    .findFirst()
+                    .orElse(null);
+            if (existingTopic == null) {
+                AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(NewTopic.class)
+                        .addConstructorArgValue(topicName)
+                        .addConstructorArgValue(1)
+                        .addConstructorArgValue(1)
+                        .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
+                        .getBeanDefinition();
+                factory.registerBeanDefinition(topicName, beanDefinition);
+                log.info("Kafka topic {} registered", topicName);
+
+            }
+        }
+
+        // create Kafka producer
+        {
+            KafkaProducer existingKafkaProducer = applicationContext.getBeansOfType(KafkaProducer.class).values().stream()
+                    .filter(kafkaProducer -> kafkaProducer.getTopicName().equals(topicName))
+                    .findFirst()
+                    .orElse(null);
+            if (existingKafkaProducer == null) {
+                AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(KafkaProducer.class)
+                        .addConstructorArgValue(topicName)
+                        .addConstructorArgValue(kafkaTemplate)
+                        .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
+                        .getBeanDefinition();
+                factory.registerBeanDefinition("producerForTopic_" + topicName, beanDefinition);
+                log.info("Kafka producer for topic {} registered", topicName);
+            }
+        }
+
         // create translator
         {
+            KafkaProducer existingKafkaProducer = applicationContext.getBeansOfType(KafkaProducer.class).values().stream()
+                    .filter(kafkaProducer -> kafkaProducer.getTopicName().equals(topicName))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Kafka producer with name " + topicName + " not found"));
             AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(Translator.class)
                     .addConstructorArgValue(queueName)
-                    .addConstructorArgValue(kafkaProducer)
+                    .addConstructorArgValue(existingKafkaProducer)
                     .setScope(AbstractBeanDefinition.SCOPE_SINGLETON)
                     .getBeanDefinition();
             factory.registerBeanDefinition("translatorForQueue_" + queueName, beanDefinition);
